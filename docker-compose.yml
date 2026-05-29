@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16
+    container_name: venturo-db
+    environment:
+      POSTGRES_DB: venturo
+      POSTGRES_USER: venturo_user
+      POSTGRES_PASSWORD: venturo_password
+    ports:
+      - "5434:5432"
+    volumes:
+      - venturo-data:/var/lib/postgresql/data
+
+volumes:
+  venturo-data:
