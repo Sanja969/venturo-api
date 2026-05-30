@@ -1,5 +1,5 @@
 from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
 from .models import ActivityComment
 from .permissions import IsCommentAuthorOrReadOnly
@@ -8,7 +8,7 @@ from .serializers import ActivityCommentSerializer
 
 class ActivityCommentListCreateApiView(generics.ListCreateAPIView):
     serializer_class = ActivityCommentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(

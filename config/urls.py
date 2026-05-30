@@ -32,6 +32,7 @@ urlpatterns = [
     path("api/", include("reviews.urls")),
     path("api/", include("participations.urls")),
     path("api/", include("comments.urls")),
+    path("api/", include("ride_offers.urls")),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

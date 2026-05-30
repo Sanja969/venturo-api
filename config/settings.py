@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "participations",
     "reviews",
     "comments",
+    "ride_offers"
 ]
 
 MIDDLEWARE = [
