@@ -10,3 +10,13 @@ class ActivityComment(models.Model):
     
     def __str__(self):
         return f"Comment by {self.user.username} on {self.experience.title}"
+      
+class RideComment(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="ride_comments" )
+    ride_offer = models.ForeignKey("ride_offers.RideOffer", on_delete=models.CASCADE, related_name="comments")
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"Comment by {self.user.username} on ride offer by {self.ride_offer.driver.username}"

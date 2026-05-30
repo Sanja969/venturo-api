@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import ActivityComment
+from .models import ActivityComment, RideComment
 
 class ActivityCommentSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source="user.username")
@@ -8,4 +8,12 @@ class ActivityCommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ActivityComment
+        fields = "__all__"
+        
+class RideCommentSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source="user.username")
+    ride_offer = serializers.ReadOnlyField(source="ride_offer.id")
+
+    class Meta:
+        model = RideComment
         fields = "__all__"
