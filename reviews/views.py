@@ -25,4 +25,5 @@ class ReviewDetailApiView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated, IsReviewOwner]
     queryset = Review.objects.all()
 
-    
+    def get_queryset(self):
+        return Review.objects.filter(user=self.request.user, experience_id=self.kwargs.get("experience_id"))

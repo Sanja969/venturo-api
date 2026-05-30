@@ -26,11 +26,11 @@ from rest_framework_simplejwt.views import (
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/experiences/", include("experiences.urls")),
-    path("api/", include("reviews.urls")),
     path("api/auth/login/", TokenObtainPairView.as_view()),
     path("api/auth/refresh/", TokenRefreshView.as_view()),
-    path("api/participations/", include("participations.urls")),
+    path("api/experiences/", include("experiences.urls")),
+    path("api/", include("reviews.urls")),
+    path("api/", include("participations.urls")),
     
 ]
 

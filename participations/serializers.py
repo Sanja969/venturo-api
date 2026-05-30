@@ -1,9 +1,12 @@
 from rest_framework import serializers
+
+from experiences.models import Experience
 from .models import Participation
 
 
 class ParticipationSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source="user.username")
+    experience = serializers.ReadOnlyField(source="experience.title")
 
     class Meta:
         model = Participation
@@ -19,7 +22,17 @@ class ParticipationSerializer(serializers.ModelSerializer):
     def validate(self, data):
         request = self.context["request"]
         user = request.user
-        experience = data.get("experience") or getattr(self.instance, "experience", None)
+        experience = getattr(self.instance, "experience", None)
+
+        if experience is None:
+
+            experience_id = self.context["view"].kwargs.get("experience_id")
+
+            experience = Experience.objects.filter(id=experience_id).first()
+
+        if experience is None:
+            raise serializers.ValidationError("Experience is required.")
+
         status = data.get("status") or getattr(self.instance, "status", "going")
 
 
