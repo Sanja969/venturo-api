@@ -31,7 +31,7 @@ urlpatterns = [
     path("api/experiences/", include("experiences.urls")),
     path("api/", include("reviews.urls")),
     path("api/", include("participations.urls")),
-    
+    path("api/", include("comments.urls")),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
