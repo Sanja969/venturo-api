@@ -14,9 +14,8 @@ class ExperienceListApiView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
-        breakpoint()
+
         serializer.save(organizer=self.request.user)
-        breakpoint()
 
 
 class ExperienceDetailApiView(generics.RetrieveUpdateDestroyAPIView):

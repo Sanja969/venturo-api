@@ -3,7 +3,7 @@ from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 class IsAuthenticatedOrReadOnly(BasePermission):
     def has_permission(self, request, view):
-        breakpoint()
+
         if request.method in SAFE_METHODS:
             return True
 

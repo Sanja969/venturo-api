@@ -5,6 +5,7 @@ from experiences.models import Experience
 from .models import Review
 from participations.models import Participation
 
+
 class ReviewSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source="user.username")
     experience = serializers.ReadOnlyField(source="experience.title")
@@ -18,7 +19,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         user = request.user
 
         experience = getattr(self.instance, "experience", None)
-        breakpoint()
 
         if experience is None:
 
@@ -29,7 +29,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         if experience is None:
 
             raise serializers.ValidationError("Experience is required.")
-
 
         has_participation = Participation.objects.filter(
             user=user,
