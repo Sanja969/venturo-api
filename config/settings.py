@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "experiences",
     "participations",
     "reviews",
+    "comments",
 ]
 
 MIDDLEWARE = [
