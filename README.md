@@ -79,7 +79,9 @@ Venturo is a community-driven platform for discovering, organizing, and joining 
 
 ## Project Structure
 
-text users/ experiences/ participations/ reviews/ comments/ ride_offers/ favorites/ 
+```text 
+users/ experiences/ participations/ reviews/ comments/ ride_offers/
+```
 
 ---
 
@@ -87,27 +89,39 @@ text users/ experiences/ participations/ reviews/ comments/ ride_offers/ favorit
 
 ### 1. Clone repository
 
-bash git clone <repository-url> cd venturo-api 
+```bash
+git clone <repository-url> cd venturo-api
+```
 
 ### 2. Start Docker containers
 
-bash docker compose up --build 
+```bash
+docker compose up --build 
+```
 
 ### 3. Run migrations
 
-bash docker compose exec web python manage.py migrate 
+```bash 
+docker compose exec web python manage.py migrate 
+```
 
 ### 4. Create superuser (optional)
 
-bash docker compose exec web python manage.py createsuperuser 
+```bash 
+docker compose exec web python manage.py createsuperuser
+```
 
 ### 5. Open API
 
-text http://localhost:8000 
+```text 
+http://localhost:8000
+```
 
 ### 6. Open Swagger documentation
 
-text http://localhost:8000/api/docs/ 
+```text
+http://localhost:8000/api/docs/ 
+```
 
 ---
 
@@ -115,15 +129,21 @@ text http://localhost:8000/api/docs/
 
 Obtain access and refresh tokens:
 
-http POST /api/token/ 
+```http
+POST /api/auth/login/ 
+```
 
 Refresh token:
 
-http POST /api/token/refresh/ 
+```text 
+POST /api/auth/refresh/ 
+```
 
 Include access token in requests:
 
-http Authorization: Bearer <access_token> 
+```text 
+Authorization: Bearer <access_token>
+```
 
 ---
 
@@ -131,11 +151,15 @@ http Authorization: Bearer <access_token>
 
 Run all tests:
 
-bash python manage.py test 
+```bash
+python manage.py test
+```
 
 Run tests for a specific app:
 
-bash python manage.py test experiences python manage.py test reviews python manage.py test comments 
+```bash
+python manage.py test experiences python manage.py test reviews python manage.py test comments 
+```
 
 ---
 
