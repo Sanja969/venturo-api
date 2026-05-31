@@ -94,7 +94,7 @@ class ExperienceImage(models.Model):
 
 class FavoriteExperience(models.Model):
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="favorite"
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="favorites"
     )
     experience = models.ForeignKey(
         Experience, on_delete=models.CASCADE, related_name="favorited_by"

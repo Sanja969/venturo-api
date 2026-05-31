@@ -1,10 +1,12 @@
 from django.utils import timezone
 
 from django.shortcuts import get_object_or_404
-from rest_framework import generics, status
+from rest_framework import generics, status, filters
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView, Response
 from django.db.models import Q
+from django.db import models
+from django.db.models import Avg, Count, Q, F, IntegerField, ExpressionWrapper
 
 from .permissions import IsExperienceOrganizerOrReadOnly
 
@@ -17,6 +19,18 @@ class ExperienceListApiView(generics.ListCreateAPIView):
     serializer_class = ExperienceSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
+    filter_backends = [filters.OrderingFilter]
+    ordering_fields = [
+        "start_date",
+        "created_at",
+        "price",
+        "max_participants",
+        "avg_rating",
+        "reviews_count",
+        "going_count_db",
+    ]
+    ordering = ["start_date"]
+
     def get_queryset(self):
         category = self.request.query_params.get("category")
         location = self.request.query_params.get("location")
@@ -24,7 +38,17 @@ class ExperienceListApiView(generics.ListCreateAPIView):
         is_spontaneous = self.request.query_params.get("is_spontaneous")
         search = self.request.query_params.get("search")
         timeframe = self.request.query_params.get("timeframe", "upcoming")
-        queryset = Experience.objects.all()
+
+        queryset = Experience.objects.annotate(
+            avg_rating=models.Avg("reviews__rating"),
+            reviews_count=models.Count("reviews", distinct=True),
+            going_count_db=models.Count(
+                "participations",
+                filter=Q(participations__status="going"),
+                distinct=True,
+            ),
+        )
+
         if category:
             queryset = queryset.filter(category__name__icontains=category)
 
@@ -51,7 +75,7 @@ class ExperienceListApiView(generics.ListCreateAPIView):
         elif timeframe == "all":
             pass
 
-        return queryset.order_by("start_date")
+        return queryset
 
     def perform_create(self, serializer):
 
