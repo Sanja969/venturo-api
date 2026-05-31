@@ -5,6 +5,6 @@ from .views import ExperienceDetailApiView, ExperienceListApiView, FavoriteExper
 urlpatterns = [
     path("", ExperienceListApiView.as_view()),
     path("<int:pk>/", ExperienceDetailApiView.as_view()),
-    path("favorite/<int:pk>/", FavoriteExperienceApi.as_view()),
+    path("<int:pk>/favorite/", FavoriteExperienceApi.as_view()),
     path("favorites/", FavoriteExperienceListApiView.as_view()),
 ]

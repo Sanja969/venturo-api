@@ -101,7 +101,6 @@ class FavoriteExperienceApi(APIView):
 
     def post(self, request, pk):
         experience = get_object_or_404(Experience, pk=pk)
-        breakpoint()
         _, created = FavoriteExperience.objects.get_or_create(
             user=request.user, experience=experience
         )
