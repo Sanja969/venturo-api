@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     "participations",
     "reviews",
     "comments",
-    "ride_offers"
+    "ride_offers",
 ]
 
 MIDDLEWARE = [
@@ -152,12 +152,19 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 10,
 }
 
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Venturo API",
+    "DESCRIPTION": "Venturo backend API",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SWAGGER_UI_SETTINGS": {
+        "persistAuthorization": True,
+    },
+}
+
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
 
-CSRF_TRUSTED_ORIGINS = os.getenv(
-    "CSRF_TRUSTED_ORIGINS",
-    ""
-).split(",")
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
