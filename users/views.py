@@ -17,3 +17,8 @@ class PublicProfileDetailApiView(generics.RetrieveAPIView):
 class PublicProfileListApiView(generics.ListAPIView):
     serializer_class = ProfileSerializer
     queryset = User.objects.all()
+    
+class SeedDatabaseApiView(APIView):
+    def post(self, request):
+        call_command("seed")
+        return Response({"detail": "Database seeded successfully."})
