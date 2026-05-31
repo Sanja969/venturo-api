@@ -1,7 +1,7 @@
 from django.utils import timezone
 
 from rest_framework import serializers
-from .models import Experience
+from .models import Experience, FavoriteExperience
 
 
 class ExperienceSerializer(serializers.ModelSerializer):
