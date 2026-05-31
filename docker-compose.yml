@@ -11,5 +11,21 @@ services:
     volumes:
       - venturo-data:/var/lib/postgresql/data
 
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      DB_NAME: venturo
+      DB_USER: venturo_user
+      DB_PASSWORD: venturo_password
+      DB_HOST: db
+      DB_PORT: 5432
+    depends_on:
+      - db
+
 volumes:
   venturo-data:
