@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import ProfileDetailApiView, PublicProfileDetailApiView, PublicProfileListApiView
+from .views import ProfileDetailApiView, PublicProfileDetailApiView, PublicProfileListApiView, SeedDatabaseApiView
 
 urlpatterns = [
     path("profile/", ProfileDetailApiView.as_view()),
