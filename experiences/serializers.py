@@ -8,6 +8,8 @@ class ExperienceSerializer(serializers.ModelSerializer):
     organizer = serializers.ReadOnlyField(source="organizer.username")
     going_count = serializers.ReadOnlyField()
     spots_left = serializers.ReadOnlyField()
+    average_rating = serializers.ReadOnlyField()
+    review_count = serializers.ReadOnlyField()
 
     class Meta:
         model = Experience

@@ -2,10 +2,13 @@ from django.conf import settings
 from django.db import models
 from django.core.validators import MinValueValidator
 
+
 class DifficultyLevel(models.TextChoices):
     EASY = "easy", "Easy"
     MEDIUM = "medium", "Medium"
     HARD = "hard", "Hard"
+
+
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
@@ -34,7 +37,9 @@ class Experience(models.Model):
 
     location = models.CharField(max_length=255)
 
-    difficulty = models.CharField(max_length=30, blank=True, default="", choices=DifficultyLevel.choices)
+    difficulty = models.CharField(
+        max_length=30, blank=True, default="", choices=DifficultyLevel.choices
+    )
     meeting_point = models.CharField(max_length=255, blank=True, default="")
     is_spontaneous = models.BooleanField(default=False)
 
@@ -63,6 +68,17 @@ class Experience(models.Model):
     def spots_left(self):
         return self.max_participants - self.going_count
 
+    @property
+    def average_rating(self):
+        reviews = self.reviews.all()
+        if reviews.exists():
+            return reviews.aggregate(avg_rating=models.Avg("rating"))["avg_rating"]
+        return None
+    @property
+    def review_count(self):
+        return self.reviews.count()
+        
+
 
 class ExperienceImage(models.Model):
     experience = models.ForeignKey(
@@ -74,7 +90,8 @@ class ExperienceImage(models.Model):
 
     def __str__(self):
         return f"Image for {self.experience.title}"
-      
+
+
 class FavoriteExperience(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="favorite"
