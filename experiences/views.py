@@ -1,7 +1,11 @@
+from django.utils import timezone
+
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView, Response
+from django.db.models import Q
+
 from .permissions import IsExperienceOrganizerOrReadOnly
 
 from .serializers import ExperienceSerializer
@@ -10,9 +14,44 @@ from .models import Experience, FavoriteExperience, FavoriteExperience
 
 
 class ExperienceListApiView(generics.ListCreateAPIView):
-    queryset = Experience.objects.all()
     serializer_class = ExperienceSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        category = self.request.query_params.get("category")
+        location = self.request.query_params.get("location")
+        difficulty = self.request.query_params.get("difficulty")
+        is_spontaneous = self.request.query_params.get("is_spontaneous")
+        search = self.request.query_params.get("search")
+        timeframe = self.request.query_params.get("timeframe", "upcoming")
+        queryset = Experience.objects.all()
+        if category:
+            queryset = queryset.filter(category__name__icontains=category)
+
+        if location:
+            queryset = queryset.filter(location__icontains=location)
+        if is_spontaneous is not None:
+            is_spontaneous = is_spontaneous.lower() == "true"
+            queryset = queryset.filter(is_spontaneous=is_spontaneous)
+        if difficulty:
+            queryset = queryset.filter(difficulty__iexact=difficulty)
+        if search:
+            terms = search.split()
+            for term in terms:
+                queryset = queryset.filter(
+                    Q(title__icontains=term)
+                    | Q(description__icontains=term)
+                    | Q(location__icontains=term)
+                    | Q(category__name__icontains=term)
+                )
+        if timeframe == "upcoming":
+            queryset = queryset.filter(start_date__gte=timezone.now())
+        elif timeframe == "past":
+            queryset = queryset.filter(end_date__lt=timezone.now())
+        elif timeframe == "all":
+            pass
+
+        return queryset.order_by("start_date")
 
     def perform_create(self, serializer):
 
@@ -23,13 +62,15 @@ class ExperienceDetailApiView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Experience.objects.all()
     serializer_class = ExperienceSerializer
     permission_classes = [IsExperienceOrganizerOrReadOnly]
-    
+
+
 class FavoriteExperienceListApiView(generics.ListAPIView):
     serializer_class = ExperienceSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return Experience.objects.filter(favorited_by__user=self.request.user)
+
 
 class FavoriteExperienceApi(APIView):
     permission_classes = [IsAuthenticated]
@@ -40,10 +81,11 @@ class FavoriteExperienceApi(APIView):
         _, created = FavoriteExperience.objects.get_or_create(
             user=request.user, experience=experience
         )
-        
+
         if not created:
             return Response(
-                {"status": "experience already in favorites"}, status=status.HTTP_400_BAD_REQUEST
+                {"status": "experience already in favorites"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         return Response(
@@ -52,10 +94,16 @@ class FavoriteExperienceApi(APIView):
 
     def delete(self, request, pk):
         experience = get_object_or_404(Experience, pk=pk)
-        favorite = FavoriteExperience.objects.filter(user=request.user, experience=experience).first()
+        favorite = FavoriteExperience.objects.filter(
+            user=request.user, experience=experience
+        ).first()
         if not favorite:
             return Response(
-                {"status": "experience not in favorites"}, status=status.HTTP_400_BAD_REQUEST
+                {"status": "experience not in favorites"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
         favorite.delete()
-        return Response({"status": "experience removed from favorites"}, status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {"status": "experience removed from favorites"},
+            status=status.HTTP_204_NO_CONTENT,
+        )

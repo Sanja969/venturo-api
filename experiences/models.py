@@ -2,7 +2,10 @@ from django.conf import settings
 from django.db import models
 from django.core.validators import MinValueValidator
 
-
+class DifficultyLevel(models.TextChoices):
+    EASY = "easy", "Easy"
+    MEDIUM = "medium", "Medium"
+    HARD = "hard", "Hard"
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
@@ -31,11 +34,11 @@ class Experience(models.Model):
 
     location = models.CharField(max_length=255)
 
-    difficulty = models.CharField(max_length=30, blank=True, default="")
+    difficulty = models.CharField(max_length=30, blank=True, default="", choices=DifficultyLevel.choices)
     meeting_point = models.CharField(max_length=255, blank=True, default="")
     is_spontaneous = models.BooleanField(default=False)
 
-    start_date = models.DateTimeField()
+    start_date = models.DateTimeField(db_index=True)
 
     end_date = models.DateTimeField()
 
