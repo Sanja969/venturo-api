@@ -5,7 +5,6 @@ from .views import (
     PublicProfileDetailApiView,
     PublicProfileListApiView,
     SeedDatabaseApiView,
-    CreateAdminApiView,
 )
 
 urlpatterns = [
