@@ -2,6 +2,14 @@
 
 Venturo is a community-driven platform for discovering, organizing, and joining outdoor experiences. Users can create events, participate in activities, offer rides, leave reviews, comment on experiences, and connect with like-minded people.
 
+## Live API
+
+https://venturo-api.onrender.com
+
+## Swagger Documentation
+
+https://venturo-api.onrender.com/api/docs/
+
 ## Features
 
 ### Experiences
