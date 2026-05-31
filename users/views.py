@@ -34,3 +34,20 @@ class SeedDatabaseApiView(APIView):
         call_command("seed")
 
         return Response({"detail": "Database seeded successfully."})
+
+
+class CreateAdminApiView(APIView):
+
+    authentication_classes = []
+
+    permission_classes = []
+
+    def post(self, request):
+
+        if not User.objects.filter(username="admin").exists():
+
+            User.objects.create_superuser(
+                username="admin", email="admin@venturo.com", password="admin123456"
+            )
+
+        return Response({"detail": "Admin created"})
