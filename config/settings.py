@@ -160,6 +160,12 @@ SPECTACULAR_SETTINGS = {
     "SWAGGER_UI_SETTINGS": {
         "persistAuthorization": True,
     },
+    "SECURITY": [
+        {
+            "BearerAuth": [],
+        }
+    ],
+    "COMPONENT_SPLIT_REQUEST": True,
 }
 
 SIMPLE_JWT = {
