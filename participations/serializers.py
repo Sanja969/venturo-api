@@ -1,12 +1,13 @@
 from rest_framework import serializers
 
 from experiences.models import Experience
+from experiences.serializers import ExperienceSerializer
 from .models import Participation
 
 
 class ParticipationSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source="user.username")
-    experience = serializers.ReadOnlyField(source="experience.title")
+    experience = ExperienceSerializer(read_only=True)
 
     class Meta:
         model = Participation
