@@ -51,4 +51,9 @@ class ReviewSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "You already gave review for this experience"
             )
+            
+        if experience.organizer == user:
+            raise serializers.ValidationError(
+                "You cannot review your own experience."
+            )
         return data
