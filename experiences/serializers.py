@@ -10,6 +10,13 @@ class ExperienceSerializer(serializers.ModelSerializer):
     spots_left = serializers.ReadOnlyField()
     average_rating = serializers.ReadOnlyField()
     review_count = serializers.ReadOnlyField()
+    is_favorite = serializers.SerializerMethodField()
+    
+    def get_is_favorite(self, obj):
+        user = self.context.get("request").user
+        if user.is_authenticated:
+            return FavoriteExperience.objects.filter(user=user, experience=obj).exists()
+        return False
 
     class Meta:
         model = Experience
