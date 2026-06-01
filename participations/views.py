@@ -21,7 +21,7 @@ class ParticipationListCreateApiView(generics.ListCreateAPIView):
     def get_queryset(self):
         return Participation.objects.filter(user=self.request.user).select_related(
             "experience"
-        )
+        ).order_by("-created_at").distinct()
 
 
 class ParticipationDetailApiView(generics.RetrieveUpdateDestroyAPIView):

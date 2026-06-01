@@ -1,7 +1,7 @@
 from django.utils import timezone
 
 from rest_framework import serializers
-from .models import Experience, FavoriteExperience
+from .models import Category, Experience, FavoriteExperience
 
 
 class ExperienceSerializer(serializers.ModelSerializer):
@@ -14,6 +14,7 @@ class ExperienceSerializer(serializers.ModelSerializer):
     user_participation_status = serializers.SerializerMethodField()
     user_participation_id = serializers.SerializerMethodField()
     can_review = serializers.SerializerMethodField()
+    can_ride = serializers.SerializerMethodField()
     
     def get_is_favorite(self, obj):
         user = self.context.get("request").user
@@ -56,6 +57,14 @@ class ExperienceSerializer(serializers.ModelSerializer):
             and not already_reviewed
             and not is_organizer
         )
+
+    def get_can_ride(self, obj):
+        request = self.context.get("request")
+        if not request or not request.user.is_authenticated:
+            return False
+        is_future = obj.end_date > timezone.now()
+        return is_future
+
     class Meta:
         model = Experience
         fields = "__all__"
@@ -77,3 +86,9 @@ class ExperienceSerializer(serializers.ModelSerializer):
             )
 
         return data
+  
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = "__all__"

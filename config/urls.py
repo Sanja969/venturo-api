@@ -19,6 +19,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
+from experiences.views import CategoryListApiView
 from rest_framework_simplejwt.views import (  # type: ignore[import]
     TokenObtainPairView,
     TokenRefreshView,
@@ -37,6 +38,7 @@ urlpatterns = [
     path("api/", include("comments.urls")),
     path("api/", include("ride_offers.urls")),
     path("api/", include("users.urls")),
+    path("api/categories/", CategoryListApiView.as_view()),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

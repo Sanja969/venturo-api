@@ -10,9 +10,9 @@ from django.db.models import Avg, Count, Q, F, IntegerField, ExpressionWrapper
 
 from .permissions import IsExperienceOrganizerOrReadOnly
 
-from .serializers import ExperienceSerializer
+from .serializers import CategorySerializer, ExperienceSerializer
 
-from .models import Experience, FavoriteExperience, FavoriteExperience
+from .models import Experience, FavoriteExperience, FavoriteExperience, Category
 
 
 class ExperienceListApiView(generics.ListCreateAPIView):
@@ -130,3 +130,8 @@ class FavoriteExperienceApi(APIView):
             {"status": "experience removed from favorites"},
             status=status.HTTP_204_NO_CONTENT,
         )
+
+class CategoryListApiView(generics.ListAPIView):
+    queryset = Category.objects.all().order_by("name")
+    serializer_class = CategorySerializer
+    permission_classes = []
