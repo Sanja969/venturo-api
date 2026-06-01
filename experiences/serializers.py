@@ -13,6 +13,7 @@ class ExperienceSerializer(serializers.ModelSerializer):
     is_favorite = serializers.SerializerMethodField()
     user_participation_status = serializers.SerializerMethodField()
     user_participation_id = serializers.SerializerMethodField()
+    can_review = serializers.SerializerMethodField()
     
     def get_is_favorite(self, obj):
         user = self.context.get("request").user
@@ -35,6 +36,26 @@ class ExperienceSerializer(serializers.ModelSerializer):
             if participation:
                 return participation.id
         return None
+    
+    def get_can_review(self, obj):
+        request = self.context.get("request")
+        if not request or not request.user.is_authenticated:
+            return False
+        user = request.user
+        is_past = obj.end_date < timezone.now()
+        has_participation = obj.participations.filter(
+            user=user,
+            status="going",
+        ).exists()
+        already_reviewed = obj.reviews.filter(user=user).exists()
+        is_organizer = obj.organizer == user
+
+        return (
+            is_past
+            and has_participation
+            and not already_reviewed
+            and not is_organizer
+        )
     class Meta:
         model = Experience
         fields = "__all__"
