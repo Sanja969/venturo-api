@@ -8,19 +8,20 @@ from .permissions import IsParticipationOwner
 from .serializers import ParticipationSerializer
 from .models import Participation
 
+
 class ParticipationListCreateApiView(generics.ListCreateAPIView):
     serializer_class = ParticipationSerializer
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user, experience_id=self.kwargs.get("experience_id"))
+        serializer.save(
+            user=self.request.user, experience_id=self.kwargs.get("experience_id")
+        )
 
     def get_queryset(self):
-        queryset = Participation.objects.all()
-        experience_id = self.kwargs.get("experience_id")
-        if experience_id:
-          return queryset.filter(experience_id=experience_id)
-        return queryset
+        return Participation.objects.filter(user=self.request.user).select_related(
+            "experience"
+        )
 
 
 class ParticipationDetailApiView(generics.RetrieveUpdateDestroyAPIView):
