@@ -11,6 +11,7 @@ class ExperienceSerializer(serializers.ModelSerializer):
     average_rating = serializers.ReadOnlyField()
     review_count = serializers.ReadOnlyField()
     is_favorite = serializers.SerializerMethodField()
+    user_participation_status = serializers.SerializerMethodField()
     
     def get_is_favorite(self, obj):
         user = self.context.get("request").user
@@ -18,6 +19,13 @@ class ExperienceSerializer(serializers.ModelSerializer):
             return FavoriteExperience.objects.filter(user=user, experience=obj).exists()
         return False
 
+    def get_user_participation_status(self, obj):
+        user = self.context.get("request").user
+        if user.is_authenticated:
+            participation = obj.participations.filter(user=user).first()
+            if participation:
+                return participation.status
+        return None
     class Meta:
         model = Experience
         fields = "__all__"
