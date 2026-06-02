@@ -29,3 +29,33 @@ class RideOffer(models.Model):
         if self.experience:
             return f"Ride offer by {self.driver.username} for {self.experience.title}"
         return f"Ride offer by {self.driver.username}"
+
+class RideRequest(models.Model):
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("accepted", "Accepted"),
+        ("rejected", "Rejected"),
+    ]
+
+    ride_offer = models.ForeignKey(
+        "RideOffer",
+        on_delete=models.CASCADE,
+        related_name="requests",
+    )
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="ride_requests",
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="pending",
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("ride_offer", "user")

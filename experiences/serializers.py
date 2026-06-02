@@ -7,6 +7,7 @@ from .models import Category, Experience, FavoriteExperience
 class ExperienceSerializer(serializers.ModelSerializer):
     organizer = serializers.ReadOnlyField(source="organizer.username")
     going_count = serializers.ReadOnlyField()
+    category_title = serializers.ReadOnlyField(source="category.name")
     spots_left = serializers.ReadOnlyField()
     average_rating = serializers.ReadOnlyField()
     review_count = serializers.ReadOnlyField()

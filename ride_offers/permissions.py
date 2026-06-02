@@ -6,3 +6,15 @@ class IsRideOfferAuthorOrReadOnly(BasePermission):
             return True
 
         return obj.driver == request.user
+      
+class IsRideOfferOwner(BasePermission):
+    def has_object_permission(
+        self,
+        request,
+        view,
+        obj,
+    ):
+        return (
+            obj.ride_offer.driver
+            == request.user
+        )
