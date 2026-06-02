@@ -1,6 +1,12 @@
 from django.urls import path
 
-from .views import ExperienceDetailApiView, ExperienceListApiView, FavoriteExperienceApi, FavoriteExperienceListApiView
+from .views import (
+    ExperienceDetailApiView,
+    ExperienceListApiView,
+    FavoriteExperienceApi,
+    FavoriteExperienceListApiView,
+    MyOrganizedExperiencesApiView
+)
 
 urlpatterns = [
     path("", ExperienceListApiView.as_view()),

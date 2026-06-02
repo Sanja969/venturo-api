@@ -135,3 +135,12 @@ class CategoryListApiView(generics.ListAPIView):
     queryset = Category.objects.all().order_by("name")
     serializer_class = CategorySerializer
     permission_classes = []
+    
+class MyOrganizedExperiencesApiView(generics.ListAPIView):
+    serializer_class = ExperienceSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Experience.objects.filter(
+            organizer=self.request.user
+        ).order_by("-created_at")
