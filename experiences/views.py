@@ -3,14 +3,14 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, status, filters
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-from rest_framework.views import APIView, Response
+from rest_framework.views import APIView, PermissionDenied, Response
 from django.db.models import Q
 from django.db import models
 from django.db.models import Avg, Count, Q, F, IntegerField, ExpressionWrapper
 
 from .permissions import IsExperienceOrganizerOrReadOnly
 
-from .serializers import CategorySerializer, ExperienceSerializer
+from .serializers import CategorySerializer, ExperienceImageCreateSerializer, ExperienceSerializer
 
 from .models import Experience, FavoriteExperience, FavoriteExperience, Category
 
@@ -144,3 +144,20 @@ class MyOrganizedExperiencesApiView(generics.ListAPIView):
         return Experience.objects.filter(
             organizer=self.request.user
         ).order_by("-created_at")
+        
+class ExperienceImageCreateApiView(generics.CreateAPIView):
+    serializer_class = ExperienceImageCreateSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        experience = get_object_or_404(
+            Experience,
+            pk=self.kwargs["experience_id"],
+        )
+
+        if experience.organizer != self.request.user:
+            raise PermissionDenied(
+                "Only organizer can upload images for this experience."
+            )
+
+        serializer.save(experience=experience)

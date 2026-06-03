@@ -1,7 +1,10 @@
 from django.urls import path
 
+from experiences.serializers import ExperienceImageSerializer
+
 from .views import (
     ExperienceDetailApiView,
+    ExperienceImageCreateApiView,
     ExperienceListApiView,
     FavoriteExperienceApi,
     FavoriteExperienceListApiView,
@@ -13,4 +16,5 @@ urlpatterns = [
     path("<int:pk>/", ExperienceDetailApiView.as_view()),
     path("<int:pk>/favorite/", FavoriteExperienceApi.as_view()),
     path("favorites/", FavoriteExperienceListApiView.as_view()),
+    path("<int:experience_id>/images/", ExperienceImageCreateApiView.as_view()),
 ]

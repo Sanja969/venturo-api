@@ -1,8 +1,25 @@
 from django.utils import timezone
 
 from rest_framework import serializers
-from .models import Category, Experience, FavoriteExperience
+from .models import Category, Experience, ExperienceImage, FavoriteExperience
 
+class ExperienceImageSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ExperienceImage
+        fields = ["id", "image", "image_url", "caption", "created_at"]
+
+    def get_image_url(self, obj):
+        if obj.image:
+            return obj.image.url
+        return None
+      
+class ExperienceImageCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExperienceImage
+        fields = ["id", "image", "caption", "created_at"]
+        read_only_fields = ["id", "created_at"]
 
 class ExperienceSerializer(serializers.ModelSerializer):
     organizer = serializers.ReadOnlyField(source="organizer.username")
@@ -17,6 +34,23 @@ class ExperienceSerializer(serializers.ModelSerializer):
     can_review = serializers.SerializerMethodField()
     can_ride = serializers.SerializerMethodField()
     
+    images = ExperienceImageSerializer(many=True, read_only=True)
+    cover_image_url = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Experience
+        fields = "__all__"
+
+    def get_cover_image_url(self, obj):
+
+        first_image = obj.images.first()
+
+        if first_image and first_image.image:
+
+            return first_image.image.url
+
+        return None
+
     def get_is_favorite(self, obj):
         user = self.context.get("request").user
         if user.is_authenticated:
@@ -30,7 +64,7 @@ class ExperienceSerializer(serializers.ModelSerializer):
             if participation:
                 return participation.status
         return None
-      
+
     def get_user_participation_id(self, obj):
         user = self.context.get("request").user
         if user.is_authenticated:
@@ -38,7 +72,7 @@ class ExperienceSerializer(serializers.ModelSerializer):
             if participation:
                 return participation.id
         return None
-    
+
     def get_can_review(self, obj):
         request = self.context.get("request")
         if not request or not request.user.is_authenticated:
@@ -53,10 +87,7 @@ class ExperienceSerializer(serializers.ModelSerializer):
         is_organizer = obj.organizer == user
 
         return (
-            is_past
-            and has_participation
-            and not already_reviewed
-            and not is_organizer
+            is_past and has_participation and not already_reviewed and not is_organizer
         )
 
     def get_can_ride(self, obj):
@@ -65,10 +96,6 @@ class ExperienceSerializer(serializers.ModelSerializer):
             return False
         is_future = obj.end_date > timezone.now()
         return is_future
-
-    class Meta:
-        model = Experience
-        fields = "__all__"
 
     def validate(self, data):
         start_date = data.get("start_date") or getattr(
@@ -87,7 +114,7 @@ class ExperienceSerializer(serializers.ModelSerializer):
             )
 
         return data
-  
+
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
