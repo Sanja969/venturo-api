@@ -60,10 +60,12 @@ INSTALLED_APPS = [
     "ride_offers",
     "cloudinary",
     "cloudinary_storage",
+    "silk",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "silk.middleware.SilkyMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",

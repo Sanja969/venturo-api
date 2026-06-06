@@ -3,6 +3,7 @@ from django.utils import timezone
 from rest_framework import serializers
 from .models import Category, Experience, ExperienceImage, FavoriteExperience
 
+
 class ExperienceImageSerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()
 
@@ -14,63 +15,98 @@ class ExperienceImageSerializer(serializers.ModelSerializer):
         if obj.image:
             return obj.image.url
         return None
-      
+
+
 class ExperienceImageCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExperienceImage
         fields = ["id", "image", "caption", "created_at"]
         read_only_fields = ["id", "created_at"]
 
+
 class ExperienceSerializer(serializers.ModelSerializer):
     organizer = serializers.ReadOnlyField(source="organizer.username")
-    going_count = serializers.ReadOnlyField()
     category_title = serializers.ReadOnlyField(source="category.name")
-    spots_left = serializers.ReadOnlyField()
-    average_rating = serializers.ReadOnlyField()
-    review_count = serializers.ReadOnlyField()
+
+    average_rating = serializers.SerializerMethodField()
+    review_count = serializers.SerializerMethodField()
+    spots_left = serializers.SerializerMethodField()
+    going_count = serializers.SerializerMethodField()
     is_favorite = serializers.SerializerMethodField()
     user_participation_status = serializers.SerializerMethodField()
     user_participation_id = serializers.SerializerMethodField()
     can_review = serializers.SerializerMethodField()
     can_ride = serializers.SerializerMethodField()
-    
+
     images = ExperienceImageSerializer(many=True, read_only=True)
     cover_image_url = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = Experience
         fields = "__all__"
 
+    def get_going_count(self, obj):
+      if hasattr(obj, "going_count_db"):
+          return obj.going_count_db
+
+      return obj.going_count
+
+    def get_average_rating(self, obj):
+      if hasattr(obj, "avg_rating"):
+          return obj.avg_rating
+
+      return obj.average_rating
+
+    def get_review_count(self, obj):
+          if hasattr(obj, "reviews_count"):
+              return obj.reviews_count
+
+          return obj.review_count
+
+    def get_spots_left(self, obj):
+        return max(0, obj.max_participants - self.get_going_count(obj))
+
     def get_cover_image_url(self, obj):
+        prefetched_images = getattr(obj, "_prefetched_objects_cache", {}).get("images")
 
-        first_image = obj.images.first()
+        images = (
+            prefetched_images
+            if prefetched_images is not None
+            else list(obj.images.all())
+        )
 
-        if first_image and first_image.image:
+        if not images:
+            return None
 
-            return first_image.image.url
+        first_image = images[0]
 
-        return None
+        if not first_image.image:
+            return None
+
+        return first_image.image.url
 
     def get_is_favorite(self, obj):
+        if hasattr(obj, "is_favorited_by_user"):
+            return bool(obj.is_favorited_by_user)
         user = self.context.get("request").user
         if user.is_authenticated:
             return FavoriteExperience.objects.filter(user=user, experience=obj).exists()
         return False
 
     def get_user_participation_status(self, obj):
-        user = self.context.get("request").user
-        if user.is_authenticated:
-            participation = obj.participations.filter(user=user).first()
-            if participation:
-                return participation.status
+        if hasattr(obj, "user_participation"):
+            participation = (
+                obj.user_participations[0] if obj.user_participations else None
+            )
+            return participation.status if participation else None
         return None
 
     def get_user_participation_id(self, obj):
-        user = self.context.get("request").user
-        if user.is_authenticated:
-            participation = obj.participations.filter(user=user).first()
-            if participation:
-                return participation.id
+        if hasattr(obj, "user_participations"):
+            participation = (
+                obj.user_participations[0] if obj.user_participations else None
+            )
+            return participation.id if participation else None
         return None
 
     def get_can_review(self, obj):
@@ -79,11 +115,20 @@ class ExperienceSerializer(serializers.ModelSerializer):
             return False
         user = request.user
         is_past = obj.end_date < timezone.now()
-        has_participation = obj.participations.filter(
-            user=user,
-            status="going",
-        ).exists()
-        already_reviewed = obj.reviews.filter(user=user).exists()
+        if hasattr(obj, "user_participations"):
+            has_participation = any(
+                participation.status == "going"
+                for participation in obj.user_participations
+            )
+        else:
+            has_participation = obj.participations.filter(
+                user=user,
+                status="going",
+            ).exists()
+        if hasattr(obj, "user_reviews"):
+            already_reviewed = bool(obj.user_reviews)
+        else:               
+          already_reviewed = obj.reviews.filter(user=user).exists()
         is_organizer = obj.organizer == user
 
         return (

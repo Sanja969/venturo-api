@@ -18,7 +18,10 @@ class ActivityCommentListCreateApiView(generics.ListCreateAPIView):
     def get_queryset(self):
         return ActivityComment.objects.filter(
             experience_id=self.kwargs.get("experience_id")
+            .select_related("user", "experience")
+            .order_by("-created_at")
         )
+
 
 class ActivityCommentDetailApiView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ActivityCommentSerializer
@@ -26,7 +29,8 @@ class ActivityCommentDetailApiView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return ActivityComment.objects.all()
-      
+
+
 class RideCommentListCreateApiView(generics.ListCreateAPIView):
     serializer_class = RideCommentSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
@@ -40,7 +44,8 @@ class RideCommentListCreateApiView(generics.ListCreateAPIView):
         return RideComment.objects.filter(
             ride_offer_id=self.kwargs.get("ride_offer_id")
         )
-        
+
+
 class RideCommentDetailApiView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = RideCommentSerializer
     permission_classes = [IsAuthenticated, IsCommentAuthorOrReadOnly]

@@ -4,15 +4,23 @@ from django.shortcuts import get_object_or_404
 from rest_framework import generics, status, filters
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView, PermissionDenied, Response
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 from django.db import models
 from django.db.models import Avg, Count, Q, F, IntegerField, ExpressionWrapper
 
+from participations.models import Participation
+from reviews.models import Review
+
 from .permissions import IsExperienceOrganizerOrReadOnly
 
-from .serializers import CategorySerializer, ExperienceImageCreateSerializer, ExperienceSerializer
+from .serializers import (
+    CategorySerializer,
+    ExperienceImageCreateSerializer,
+    ExperienceSerializer,
+)
 
 from .models import Experience, FavoriteExperience, FavoriteExperience, Category
+from .selectors import get_optimized_experience_queryset
 
 
 class ExperienceListApiView(generics.ListCreateAPIView):
@@ -32,22 +40,13 @@ class ExperienceListApiView(generics.ListCreateAPIView):
     ordering = ["start_date"]
 
     def get_queryset(self):
+        queryset = get_optimized_experience_queryset(self.request.user)
         category = self.request.query_params.get("category")
         location = self.request.query_params.get("location")
         difficulty = self.request.query_params.get("difficulty")
         is_spontaneous = self.request.query_params.get("is_spontaneous")
         search = self.request.query_params.get("search")
         timeframe = self.request.query_params.get("timeframe", "upcoming")
-
-        queryset = Experience.objects.annotate(
-            avg_rating=models.Avg("reviews__rating"),
-            reviews_count=models.Count("reviews", distinct=True),
-            going_count_db=models.Count(
-                "participations",
-                filter=Q(participations__status="going"),
-                distinct=True,
-            ),
-        )
 
         if category:
             queryset = queryset.filter(category__name__icontains=category)
@@ -83,7 +82,8 @@ class ExperienceListApiView(generics.ListCreateAPIView):
 
 
 class ExperienceDetailApiView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Experience.objects.all()
+    def get_queryset(self):
+      return get_optimized_experience_queryset(self.request.user)
     serializer_class = ExperienceSerializer
     permission_classes = [IsExperienceOrganizerOrReadOnly]
 
@@ -131,20 +131,23 @@ class FavoriteExperienceApi(APIView):
             status=status.HTTP_204_NO_CONTENT,
         )
 
+
 class CategoryListApiView(generics.ListAPIView):
     queryset = Category.objects.all().order_by("name")
     serializer_class = CategorySerializer
     permission_classes = []
-    
+
+
 class MyOrganizedExperiencesApiView(generics.ListAPIView):
     serializer_class = ExperienceSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Experience.objects.filter(
-            organizer=self.request.user
-        ).order_by("-created_at")
-        
+        return Experience.objects.filter(organizer=self.request.user).order_by(
+            "-created_at"
+        )
+
+
 class ExperienceImageCreateApiView(generics.CreateAPIView):
     serializer_class = ExperienceImageCreateSerializer
     permission_classes = [IsAuthenticated]
