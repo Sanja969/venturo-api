@@ -9,7 +9,7 @@ from reviews.models import Review
 
 from .permissions import IsParticipationOwner
 
-from .serializers import ParticipationSerializer
+from .serializers import ExperienceParticipantSerializer, ParticipationSerializer
 from .models import Participation
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import PermissionDenied
@@ -78,7 +78,7 @@ class ParticipationDetailApiView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class ExperienceParticipantsApiView(generics.ListAPIView):
-    serializer_class = ParticipationSerializer
+    serializer_class = ExperienceParticipantSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -93,5 +93,5 @@ class ExperienceParticipantsApiView(generics.ListAPIView):
             raise PermissionDenied()
 
         return (Participation.objects.filter(experience=experience)).select_related(
-            "user"
-        )
+            "user",
+        ).order_by("-created_at")

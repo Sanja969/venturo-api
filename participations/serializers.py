@@ -69,3 +69,10 @@ class ParticipationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("This experience is fully booked.")
 
         return data
+
+class ExperienceParticipantSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source="user.username")
+
+    class Meta:
+        model = Participation
+        fields = ["id", "user", "status", "created_at"]
