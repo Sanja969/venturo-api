@@ -86,15 +86,15 @@ class ExperienceSerializer(serializers.ModelSerializer):
         return first_image.image.url
 
     def get_is_favorite(self, obj):
-        if hasattr(obj, "is_favorited_by_user"):
-            return bool(obj.is_favorited_by_user)
+        if hasattr(obj, "user_favorites"):
+            return bool(obj.user_favorites)
         user = self.context.get("request").user
         if user.is_authenticated:
             return FavoriteExperience.objects.filter(user=user, experience=obj).exists()
         return False
 
     def get_user_participation_status(self, obj):
-        if hasattr(obj, "user_participation"):
+        if hasattr(obj, "user_participations"):
             participation = (
                 obj.user_participations[0] if obj.user_participations else None
             )

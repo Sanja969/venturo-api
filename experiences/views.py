@@ -83,7 +83,8 @@ class ExperienceListApiView(generics.ListCreateAPIView):
 
 class ExperienceDetailApiView(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
-      return get_optimized_experience_queryset(self.request.user)
+        return get_optimized_experience_queryset(self.request.user)
+
     serializer_class = ExperienceSerializer
     permission_classes = [IsExperienceOrganizerOrReadOnly]
 
@@ -93,7 +94,11 @@ class FavoriteExperienceListApiView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Experience.objects.filter(favorited_by__user=self.request.user)
+        return (
+            get_optimized_experience_queryset(self.request.user)
+            .filter(favorited_by__user=self.request.user)
+            .distinct()
+        )
 
 
 class FavoriteExperienceApi(APIView):
@@ -143,8 +148,10 @@ class MyOrganizedExperiencesApiView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Experience.objects.filter(organizer=self.request.user).order_by(
-            "-created_at"
+        return (
+            get_optimized_experience_queryset(self.request.user)
+            .filter(organizer=self.request.user)
+            .order_by("-created_at")
         )
 
 

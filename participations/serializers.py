@@ -4,10 +4,30 @@ from experiences.models import Experience
 from experiences.serializers import ExperienceSerializer
 from .models import Participation
 
+class ParticipationExperienceSerializer(serializers.ModelSerializer):
+    organizer = serializers.ReadOnlyField(source="organizer.username")
+    category_title = serializers.ReadOnlyField(source="category.name")
+    cover_image_url = serializers.SerializerMethodField()
 
+    class Meta:
+        model = Experience
+        fields = [
+            "id",
+            "title",
+            "location",
+            "start_date",
+            "difficulty",
+            "organizer",
+            "category_title",
+            "cover_image_url",
+        ]
+
+    def get_cover_image_url(self, obj):
+        images = list(obj.images.all())
+        return images[0].image.url if images else None
 class ParticipationSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source="user.username")
-    experience = ExperienceSerializer(read_only=True)
+    experience = ParticipationExperienceSerializer(read_only=True)
 
     class Meta:
         model = Participation

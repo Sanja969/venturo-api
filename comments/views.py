@@ -16,8 +16,8 @@ class ActivityCommentListCreateApiView(generics.ListCreateAPIView):
         )
 
     def get_queryset(self):
-        return ActivityComment.objects.filter(
-            experience_id=self.kwargs.get("experience_id")
+        return (ActivityComment.objects.filter(
+            experience_id=self.kwargs.get("experience_id"))
             .select_related("user", "experience")
             .order_by("-created_at")
         )
